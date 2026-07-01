@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DealFlow OS
 
-## Getting Started
+AI revenue recovery platform for real estate brokerages — score leads, prioritize follow-ups, and generate outreach.
 
-First, run the development server:
+## Quick start
 
 ```bash
+cd dealflow-os
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Dashboard** — priority leads, pipeline metrics, AI insights
+- **Leads** — AI-scored lead queue sorted by close probability
+- **Lead detail** — re-score leads and generate follow-up messages
+- **CSV import** — upload lead databases with automatic scoring on import
+- **CRM modules** — deals, contacts, companies, tasks, calendar, reports
 
-## Learn More
+## Environment
 
-To learn more about Next.js, take a look at the following resources:
+Copy `.env.example` to `.env.local`:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+cp .env.example .env.local
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OPENAI_API_KEY` | No | Enables AI scoring and follow-up generation (heuristic fallback without it) |
+| `DATABASE_URL` | No | PostgreSQL for Prisma persistence |
 
-## Deploy on Vercel
+## Database (optional)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npx prisma migrate dev
+npm run prisma:seed
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Scripts
+
+- `npm run dev` — development server
+- `npm run build` — production build
+- `npm run typecheck` — TypeScript check
+- `npm run lint` — ESLint
