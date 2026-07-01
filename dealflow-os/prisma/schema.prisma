@@ -1,0 +1,501 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String           @id @default(uuid())
+  email              String           @unique
+  emailVerified      DateTime?
+  password           String?
+  name               String?
+  avatarUrl          String?
+  role               Role             @default(MEMBER)
+  organizations      Member[]
+  ownedOrganizations Organization[]   @relation("OwnedOrganizations")
+  deals              Deal[]
+  tasks              Task[]
+  activities         Activity[]
+  notes              Note[]
+  comments           Comment[]
+  notifications      Notification[]
+  organizedMeetings  Meeting[]
+  aiConversations    AIConversation[]
+  aiLogs             AILog[]
+  auditLogs          AuditLog[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  deletedAt          DateTime?
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+model Organization {
+  id              String           @id @default(uuid())
+  name            String
+  slug            String           @unique
+  website         String?
+  industry        String?
+  ownerId         String
+  owner           User             @relation("OwnedOrganizations", fields: [ownerId], references: [id])
+  members         Member[]
+  companies       Company[]
+  contacts        Contact[]
+  leads           Lead[]
+  pipelines       Pipeline[]
+  deals           Deal[]
+  tasks           Task[]
+  activities      Activity[]
+  notes           Note[]
+  attachments     Attachment[]
+  meetings        Meeting[]
+  emails          Email[]
+  notifications   Notification[]
+  aiConversations AIConversation[]
+  aiLogs          AILog[]
+  reports         Report[]
+  integrations    Integration[]
+  subscriptions   Subscription[]
+  invoices        Invoice[]
+  auditLogs       AuditLog[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
+}
+
+model Member {
+  id             String       @id @default(uuid())
+  userId         String
+  organizationId String
+  role           Role         @default(MEMBER)
+  user           User         @relation(fields: [userId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([userId, organizationId])
+}
+
+model Lead {
+  id               String       @id @default(uuid())
+  firstName        String
+  lastName         String
+  email            String
+  phone            String?
+  propertyInterest String?
+  budget           Float?
+  source           String?
+  status           LeadStatus   @default(NEW)
+  score            Int?
+  scoreReason      String?
+  lastContactedAt  DateTime?
+  notes            String?
+  organization     Organization @relation(fields: [organizationId], references: [id])
+  organizationId   String
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  deletedAt        DateTime?
+
+  @@index([organizationId])
+  @@index([score])
+  @@index([status])
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  NURTURING
+  CLOSED
+  LOST
+}
+
+model Company {
+  id             String       @id @default(uuid())
+  name           String
+  industry       String?
+  employees      Int?
+  revenue        Float?
+  website        String?
+  logoUrl        String?
+  address        String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  contacts       Contact[]
+  deals          Deal[]
+  notes          Note[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+
+  @@index([organizationId])
+}
+
+model Contact {
+  id             String       @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String
+  phone          String?
+  title          String?
+  avatarUrl      String?
+  company        Company?     @relation(fields: [companyId], references: [id])
+  companyId      String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  deals          Deal[]
+  tasks          Task[]
+  meetings       Meeting[]    @relation("MeetingParticipants")
+  activities     Activity[]
+  notes          Note[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+
+  @@index([organizationId])
+  @@index([companyId])
+}
+
+model Pipeline {
+  id             String          @id @default(uuid())
+  name           String
+  organization   Organization    @relation(fields: [organizationId], references: [id])
+  organizationId String
+  stages         PipelineStage[]
+  deals          Deal[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+
+  @@index([organizationId])
+}
+
+model PipelineStage {
+  id         String   @id @default(uuid())
+  name       String
+  position   Int
+  pipeline   Pipeline @relation(fields: [pipelineId], references: [id])
+  pipelineId String
+  deals      Deal[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Deal {
+  id             String          @id @default(uuid())
+  title          String
+  value          Float
+  closeDate      DateTime?
+  probability    Int             @default(0)
+  stage          PipelineStage?  @relation(fields: [stageId], references: [id])
+  stageId        String?
+  pipeline       Pipeline?       @relation(fields: [pipelineId], references: [id])
+  pipelineId     String?
+  company        Company?        @relation(fields: [companyId], references: [id])
+  companyId      String?
+  contacts       Contact[]
+  owner          User?           @relation(fields: [ownerId], references: [id])
+  ownerId        String?
+  organization   Organization    @relation(fields: [organizationId], references: [id])
+  organizationId String
+  tasks          Task[]
+  activities     Activity[]
+  notes          Note[]
+  comments       Comment[]
+  attachments    Attachment[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+
+  @@index([organizationId])
+  @@index([pipelineId])
+  @@index([stageId])
+}
+
+model Task {
+  id             String       @id @default(uuid())
+  title          String
+  description    String?
+  status         TaskStatus   @default(TODO)
+  priority       TaskPriority @default(MEDIUM)
+  dueDate        DateTime?
+  completedAt    DateTime?
+  assignee       User?        @relation(fields: [assigneeId], references: [id])
+  assigneeId     String?
+  relatedDeal    Deal?        @relation(fields: [dealId], references: [id])
+  dealId         String?
+  relatedContact Contact?     @relation(fields: [contactId], references: [id])
+  contactId      String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  activities     Activity[]
+  notes          Note[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+
+  @@index([organizationId])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Activity {
+  id             String       @id @default(uuid())
+  type           ActivityType
+  summary        String
+  user           User?        @relation(fields: [userId], references: [id])
+  userId         String?
+  deal           Deal?        @relation(fields: [dealId], references: [id])
+  dealId         String?
+  contact        Contact?     @relation(fields: [contactId], references: [id])
+  contactId      String?
+  task           Task?        @relation(fields: [taskId], references: [id])
+  taskId         String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+enum ActivityType {
+  CALL
+  EMAIL
+  MEETING
+  NOTE
+  TASK
+}
+
+model Note {
+  id             String       @id @default(uuid())
+  content        String
+  user           User?        @relation(fields: [userId], references: [id])
+  userId         String?
+  deal           Deal?        @relation(fields: [dealId], references: [id])
+  dealId         String?
+  contact        Contact?     @relation(fields: [contactId], references: [id])
+  contactId      String?
+  company        Company?     @relation(fields: [companyId], references: [id])
+  companyId      String?
+  task           Task?        @relation(fields: [taskId], references: [id])
+  taskId         String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  body      String
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  deal      Deal?    @relation(fields: [dealId], references: [id])
+  dealId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Attachment {
+  id             String       @id @default(uuid())
+  url            String
+  fileName       String
+  fileType       String
+  deal           Deal?        @relation(fields: [dealId], references: [id])
+  dealId         String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Meeting {
+  id             String       @id @default(uuid())
+  title          String
+  description    String?
+  startAt        DateTime
+  endAt          DateTime
+  location       String?
+  organizer      User?        @relation(fields: [organizerId], references: [id])
+  organizerId    String?
+  participants   Contact[]    @relation("MeetingParticipants")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Email {
+  id             String       @id @default(uuid())
+  subject        String
+  body           String
+  to             String
+  from           String
+  status         EmailStatus  @default(SENT)
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+enum EmailStatus {
+  DRAFT
+  QUEUED
+  SENT
+  FAILED
+}
+
+model Notification {
+  id             String           @id @default(uuid())
+  type           NotificationType
+  title          String
+  message        String
+  read           Boolean          @default(false)
+  user           User?            @relation(fields: [userId], references: [id])
+  userId         String?
+  organization   Organization     @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime         @default(now())
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  DANGER
+}
+
+model AIConversation {
+  id             String       @id @default(uuid())
+  title          String
+  user           User?        @relation(fields: [userId], references: [id])
+  userId         String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  messages       AIMessage[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model AIMessage {
+  id             String         @id @default(uuid())
+  role           AIMessageRole
+  content        String
+  conversation   AIConversation @relation(fields: [conversationId], references: [id])
+  conversationId String
+  createdAt      DateTime       @default(now())
+}
+
+enum AIMessageRole {
+  SYSTEM
+  USER
+  ASSISTANT
+}
+
+model AILog {
+  id             String       @id @default(uuid())
+  request        Json
+  response       Json
+  user           User?        @relation(fields: [userId], references: [id])
+  userId         String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime     @default(now())
+}
+
+model Report {
+  id             String       @id @default(uuid())
+  name           String
+  type           ReportType
+  payload        Json
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+enum ReportType {
+  REVENUE
+  FORECAST
+  PERFORMANCE
+  FUNNEL
+}
+
+model Integration {
+  id             String       @id @default(uuid())
+  provider       String
+  settings       Json
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  connectedAt    DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Subscription {
+  id               String             @id @default(uuid())
+  plan             String
+  status           SubscriptionStatus
+  organization     Organization       @relation(fields: [organizationId], references: [id])
+  organizationId   String
+  startedAt        DateTime           @default(now())
+  currentPeriodEnd DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  number         String        @unique
+  amount         Float
+  status         InvoiceStatus
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  organizationId String
+  dueDate        DateTime?
+  paidAt         DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  OVERDUE
+}
+
+model AuditLog {
+  id             String       @id @default(uuid())
+  action         String
+  actorId        String?
+  actor          User?        @relation(fields: [actorId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  meta           Json?
+  createdAt      DateTime     @default(now())
+}
