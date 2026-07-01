@@ -1,68 +1,62 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import { PagePanel, PageShell } from "@/components/ui/page-shell";
+import { LeadScoreBadge } from "@/components/lead-score-badge";
 import { getAllLeads } from "@/lib/leads-store";
 import { formatBudget, statusColors } from "@/lib/leads";
-import { LeadScoreBadge } from "@/components/lead-score-badge";
 
 export default function LeadsPage() {
   const leads = getAllLeads();
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-[28px] border border-slate-200/70 bg-white p-6 shadow-surface">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-500">Leads</p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-950">Priority lead queue</h1>
-            <p className="mt-2 text-sm text-slate-500">AI-scored leads ranked by close probability.</p>
-          </div>
-          <Link
-            href="/import"
-            className="inline-flex rounded-[14px] bg-[#6D5EF6] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#5B4CF1]"
-          >
-            Import CSV
-          </Link>
-        </div>
-      </div>
-
-      <div className="overflow-hidden rounded-[28px] border border-slate-200/70 bg-white shadow-surface">
+    <PageShell
+      title="Lead queue"
+      subtitle="AI-scored leads ranked by close probability."
+      badge="● 128 active leads"
+      action={
+        <Link href="/import" className="rounded-full bg-[rgba(79,70,229,0.22)] px-4 py-2 text-sm font-semibold text-[#c7d2fe]">
+          Import CSV
+        </Link>
+      }
+    >
+      <PagePanel className="overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-slate-200/70 bg-[#FAFAFC] text-slate-500">
+            <thead className="border-b border-[var(--border)] bg-[var(--panel-soft)] text-[var(--muted)]">
               <tr>
-                <th className="px-6 py-4 font-medium">Score</th>
-                <th className="px-6 py-4 font-medium">Lead</th>
-                <th className="px-6 py-4 font-medium">Property</th>
-                <th className="px-6 py-4 font-medium">Budget</th>
-                <th className="px-6 py-4 font-medium">Source</th>
-                <th className="px-6 py-4 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Score</th>
+                <th className="px-4 py-3 font-medium">Lead</th>
+                <th className="px-4 py-3 font-medium">Property</th>
+                <th className="px-4 py-3 font-medium">Budget</th>
+                <th className="px-4 py-3 font-medium">Source</th>
+                <th className="px-4 py-3 font-medium">Status</th>
               </tr>
             </thead>
             <tbody>
               {leads.map((lead) => (
-                <tr key={lead.id} className="border-b border-slate-100 transition hover:bg-[#FAFAFC]">
-                  <td className="px-6 py-4">
+                <tr key={lead.id} className="border-b border-[var(--border)] transition hover:bg-[var(--panel-soft)]">
+                  <td className="px-4 py-3">
                     <LeadScoreBadge score={lead.score} />
                   </td>
-                  <td className="px-6 py-4">
-                    <Link href={`/leads/${lead.id}`} className="font-semibold text-slate-950 hover:text-[#6D5EF6]">
+                  <td className="px-4 py-3">
+                    <Link href={`/leads/${lead.id}`} className="font-semibold text-[var(--text)] hover:text-[#c7d2fe]">
                       {lead.firstName} {lead.lastName}
                     </Link>
-                    <p className="text-slate-500">{lead.email}</p>
+                    <p className="text-[var(--muted)]">{lead.email}</p>
                   </td>
-                  <td className="px-6 py-4 text-slate-600">{lead.propertyInterest ?? "—"}</td>
-                  <td className="px-6 py-4 font-medium text-slate-950">{formatBudget(lead.budget)}</td>
-                  <td className="px-6 py-4 text-slate-600">{lead.source ?? "—"}</td>
-                  <td className="px-6 py-4">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusColors[lead.status]}`}>{lead.status}</span>
+                  <td className="px-4 py-3 text-[var(--muted)]">{lead.propertyInterest ?? "—"}</td>
+                  <td className="px-4 py-3 font-medium">{formatBudget(lead.budget)}</td>
+                  <td className="px-4 py-3 text-[var(--muted)]">{lead.source ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusColors[lead.status]}`}>{lead.status}</span>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
+      </PagePanel>
+    </PageShell>
   );
 }

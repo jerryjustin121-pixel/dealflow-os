@@ -1,58 +1,95 @@
 "use client";
 
-import { revenueTrend, sourceBreakdown } from "@/lib/mock-data";
+import { agentPerformance, reportMetrics, revenueTrend, sourceBreakdown } from "@/lib/mock-data";
+import { PagePanel, PageShell } from "@/components/ui/page-shell";
+import { RevenueBarChart } from "@/components/ui/revenue-bar-chart";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Bar, BarChart } from "recharts";
+
+const trendBars = revenueTrend.map((item, index) => ({
+  label: `W${index + 1}`,
+  height: Math.max(20, Math.round((item.value / 4700000) * 100)),
+}));
 
 export default function ReportsPage() {
   return (
-    <div className="space-y-6">
-      <div className="rounded-[28px] border border-slate-200/70 bg-white p-6 shadow-surface">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-500">Reports</p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-950">Revenue & pipeline insights</h1>
-          </div>
-          <span className="rounded-full bg-[#ECFDF5] px-4 py-2 text-sm font-semibold text-[#15803D]">Monthly review</span>
-        </div>
+    <PageShell title="Reports" subtitle="Revenue, pipeline insights, and agent performance." badge="● Monthly review">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {reportMetrics.map((metric) => (
+          <PagePanel key={metric.label}>
+            <p className="text-sm text-[var(--muted)]">{metric.label}</p>
+            <p className="mt-2 text-2xl font-bold">{metric.value}</p>
+            <p className="mt-1 text-sm text-[var(--accent-2)]">{metric.delta}</p>
+          </PagePanel>
+        ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-[28px] border border-slate-200/70 bg-white p-6 shadow-surface">
-          <p className="text-sm font-medium text-slate-500">Revenue outlook</p>
-          <div className="mt-6 h-[320px]">
+      <div className="grid gap-4 xl:grid-cols-2">
+        <PagePanel>
+          <p className="text-sm text-[var(--muted)]">Revenue outlook</p>
+          <div className="mt-4 h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenueTrend} margin={{ top: 12, right: 0, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.24} />
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} stroke="#E9EDF7" />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 13 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 13 }} />
-                <Tooltip contentStyle={{ borderRadius: 24, border: "1px solid #E2E8F0" }} />
-                <Area type="monotone" dataKey="value" stroke="#10B981" fill="url(#revenueGradient)" strokeWidth={3} />
+              <AreaChart data={revenueTrend}>
+                <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.18)" />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
+                <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid rgba(148,163,184,0.18)", borderRadius: 12 }} />
+                <Area type="monotone" dataKey="value" stroke="#818cf8" fill="rgba(79,70,229,0.25)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </PagePanel>
 
-        <div className="rounded-[28px] border border-slate-200/70 bg-white p-6 shadow-surface">
-          <p className="text-sm font-medium text-slate-500">Deal source mix</p>
-          <div className="mt-6 h-[320px]">
+        <PagePanel>
+          <p className="text-sm text-[var(--muted)]">Deal source mix</p>
+          <div className="mt-4 h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={sourceBreakdown} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                <CartesianGrid vertical={false} stroke="#E9EDF7" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 13 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 13 }} />
-                <Tooltip contentStyle={{ borderRadius: 24, border: "1px solid #E2E8F0" }} />
-                <Bar dataKey="value" fill="#6366F1" radius={[12, 12, 0, 0]} />
+              <BarChart data={sourceBreakdown}>
+                <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.18)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
+                <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid rgba(148,163,184,0.18)", borderRadius: 12 }} />
+                <Bar dataKey="value" fill="#6366f1" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </PagePanel>
       </div>
-    </div>
+
+      <PagePanel>
+        <p className="text-sm text-[var(--muted)]">Revenue trend bars</p>
+        <div className="mt-4"><RevenueBarChart data={trendBars} /></div>
+      </PagePanel>
+
+      <PagePanel>
+        <p className="text-sm text-[var(--muted)]">Agent performance</p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="min-w-full text-left text-sm">
+            <thead className="text-[var(--muted)]">
+              <tr>
+                <th className="pb-2 pr-4">Agent</th>
+                <th className="pb-2 pr-4">Leads</th>
+                <th className="pb-2 pr-4">Won</th>
+                <th className="pb-2 pr-4">Recovered</th>
+                <th className="pb-2">Conversion</th>
+              </tr>
+            </thead>
+            <tbody>
+              {agentPerformance.map((agent) => (
+                <tr key={agent.name} className="border-t border-[var(--border)]">
+                  <td className="py-3 pr-4">
+                    <p className="font-semibold">{agent.name}</p>
+                    <p className="text-[var(--muted)]">{agent.role}</p>
+                  </td>
+                  <td className="py-3 pr-4">{agent.leads}</td>
+                  <td className="py-3 pr-4">{agent.won}</td>
+                  <td className="py-3 pr-4">${(agent.recovered / 1000).toFixed(0)}K</td>
+                  <td className="py-3">{agent.conversion}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </PagePanel>
+    </PageShell>
   );
 }

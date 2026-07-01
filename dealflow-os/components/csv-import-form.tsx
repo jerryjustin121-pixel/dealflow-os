@@ -48,24 +48,24 @@ export function CsvImportForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <label className="flex cursor-pointer flex-col items-center justify-center rounded-[24px] border-2 border-dashed border-slate-200 bg-[#FAFAFC] p-10 transition hover:border-[#6D5EF6] hover:bg-[#F4F2FF]">
-        <Upload className="mb-4 h-10 w-10 text-[#6D5EF6]" />
-        <span className="text-lg font-semibold text-slate-950">Drop CSV or click to upload</span>
-        <span className="mt-2 text-sm text-slate-500">Columns: firstName, lastName, email, phone, propertyInterest, budget, source</span>
-        <input name="file" type="file" accept=".csv,text/csv" className="mt-4 text-sm" />
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--border)] bg-[var(--panel-soft)] p-10 transition hover:border-[#818cf8]">
+        <Upload className="mb-4 h-10 w-10 text-[#818cf8]" />
+        <span className="text-lg font-semibold">Drop CSV or click to upload</span>
+        <span className="mt-2 text-sm text-[var(--muted)]">Columns: firstName, lastName, email, phone, propertyInterest, budget, source</span>
+        <input name="file" type="file" accept=".csv,text/csv" className="mt-4 text-sm text-[var(--muted)]" />
       </label>
 
       <button
         type="submit"
         disabled={loading}
-        className="rounded-[14px] bg-[#6D5EF6] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#5B4CF1] disabled:opacity-60"
+        className="rounded-xl bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-white disabled:opacity-60"
       >
         {loading ? "Importing…" : "Import leads"}
       </button>
 
-      {message ? <p className="text-sm font-medium text-[#15803D]">{message}</p> : null}
-      {error ? <p className="text-sm font-medium text-[#DC2626]">{error}</p> : null}
+      {message ? <p className="text-sm font-medium text-[var(--accent-2)]">{message}</p> : null}
+      {error ? <p className="text-sm font-medium text-[var(--danger)]">{error}</p> : null}
     </form>
   );
 }

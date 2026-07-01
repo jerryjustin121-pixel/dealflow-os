@@ -1,82 +1,61 @@
 "use client";
 
-import { deals, pipelineSummary } from "@/lib/mock-data";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { deals, pipelineStages } from "@/lib/mock-data";
+import { PagePanel, PageShell } from "@/components/ui/page-shell";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { RevenueBarChart } from "@/components/ui/revenue-bar-chart";
 
 const formatCurrency = (value: number) => `$${value.toLocaleString()}`;
 
+const dealBars = deals.map((deal, index) => ({
+  label: `D${index + 1}`,
+  height: Math.max(20, Math.round((deal.value / 1200000) * 100)),
+}));
+
 export default function DealsPage() {
   return (
-    <div className="space-y-6">
-      <div className="rounded-[28px] border border-slate-200/70 bg-white p-6 shadow-surface">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-500">Deals</p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-950">Pipeline opportunities</h1>
-          </div>
-          <span className="rounded-full bg-[#EEF2FF] px-4 py-2 text-sm font-semibold text-[#2563EB]">Updated now</span>
-        </div>
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          {pipelineSummary.map((item) => (
-            <div key={item.label} className="rounded-[24px] border border-slate-200/70 bg-[#F8FAFF] p-5">
-              <p className="text-sm font-medium text-slate-500">{item.label}</p>
-              <p className="mt-4 text-3xl font-semibold text-slate-950">{item.count}</p>
-              <p className="mt-2 text-sm text-slate-500">{item.value}</p>
-            </div>
-          ))}
-        </div>
+    <PageShell title="Deals pipeline" subtitle="Active opportunities by stage and value." badge="● 24 open deals">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {pipelineStages.map((stage) => (
+          <PagePanel key={stage.stage}>
+            <p className="text-sm text-[var(--muted)]">{stage.label}</p>
+            <p className="mt-2 text-2xl font-bold">{stage.count}</p>
+            <p className="mt-1 text-sm text-[var(--muted)]">{stage.value}</p>
+          </PagePanel>
+        ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
-        <div className="rounded-[28px] border border-slate-200/70 bg-white p-6 shadow-surface">
-          <div className="mb-6 flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-medium text-slate-500">Pipeline forecasting</p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-950">Deal value trend</h2>
-            </div>
-            <span className="rounded-full bg-[#F4F2FF] px-3 py-2 text-sm font-semibold text-[#6D5EF6]">This quarter</span>
+      <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+        <PagePanel>
+          <p className="text-sm text-[var(--muted)]">Deal value trend</p>
+          <div className="mt-4">
+            <RevenueBarChart data={dealBars} />
           </div>
-          <div className="h-[320px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={deals.map((deal) => ({ name: deal.id, value: deal.value }))} margin={{ top: 12, right: 0, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="dealTrend" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6D5EF6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#6D5EF6" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} stroke="#E9EDF7" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 13 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 13 }} tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
-                <Tooltip contentStyle={{ borderRadius: 24, border: "1px solid #E2E8F0" }} formatter={(value: number) => formatCurrency(value)} />
-                <Area type="monotone" dataKey="value" stroke="#6D5EF6" fill="url(#dealTrend)" strokeWidth={3} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        </PagePanel>
 
-        <div className="overflow-hidden rounded-[28px] border border-slate-200/70 bg-white p-6 shadow-surface">
-          <p className="text-sm font-medium text-slate-500">Current deals</p>
-          <div className="mt-4 space-y-4">
-            {deals.map((deal) => (
-              <div key={deal.id} className="rounded-[24px] border border-slate-200/70 bg-[#FBFBFF] p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
+        <PagePanel>
+          <p className="text-sm text-[var(--muted)]">Current deals</p>
+          <div className="mt-4 grid gap-2.5">
+            {deals.slice(0, 6).map((deal) => (
+              <div key={deal.id} className="rounded-xl border border-[var(--border)] bg-[var(--panel-soft)] p-3">
+                <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-slate-950">{deal.title}</p>
-                    <p className="text-sm text-slate-500">{deal.company}</p>
+                    <p className="font-semibold">{deal.title}</p>
+                    <p className="text-sm text-[var(--muted)]">{deal.company}</p>
                   </div>
-                  <span className="rounded-full bg-[#EEF2FF] px-3 py-1 text-sm font-semibold text-[#2563EB]">{deal.stage}</span>
+                  <StatusBadge
+                    tone={deal.temperature === "Hot" ? "hot" : deal.temperature === "Warm" ? "warm" : "good"}
+                    label={deal.stage}
+                  />
                 </div>
-                <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-500">
-                  <span>{formatCurrency(deal.value)}</span>
-                  <span>{deal.probability}% probability</span>
-                  <span>Close by {deal.closeDate}</span>
-                </div>
+                <p className="mt-2 text-sm text-[var(--muted)]">
+                  {formatCurrency(deal.value)} · {deal.probability}% · {deal.owner}
+                </p>
               </div>
             ))}
           </div>
-        </div>
+        </PagePanel>
       </div>
-    </div>
+    </PageShell>
   );
 }

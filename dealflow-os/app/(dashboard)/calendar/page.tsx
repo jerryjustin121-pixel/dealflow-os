@@ -1,43 +1,44 @@
-import { calendarEvents } from "@/lib/mock-data";
+import { calendarEvents, weekDays } from "@/lib/mock-data";
+import { PagePanel, PageShell } from "@/components/ui/page-shell";
 
 export default function CalendarPage() {
   return (
-    <div className="space-y-6">
-      <div className="rounded-[28px] border border-slate-200/70 bg-white p-6 shadow-surface">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-500">Calendar</p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-950">Upcoming engagements</h1>
-          </div>
-          <button className="rounded-[14px] bg-[#2563EB] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1D4ED8]">Create event</button>
-        </div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-[28px] border border-slate-200/70 bg-white p-6 shadow-surface">
-          <div className="space-y-6">
+    <PageShell
+      title="Calendar"
+      subtitle="Upcoming engagements and follow-up blocks."
+      badge="● This week"
+      action={<button className="rounded-xl bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white">Create event</button>}
+    >
+      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <PagePanel>
+          <div className="grid gap-2.5">
             {calendarEvents.map((event) => (
-              <div key={event.id} className="rounded-[24px] border border-slate-200/70 p-5">
+              <div key={event.id} className="rounded-xl border border-[var(--border)] bg-[var(--panel-soft)] p-3">
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-lg font-semibold text-slate-950">{event.title}</p>
-                    <p className="mt-1 text-sm text-slate-500">{event.time}</p>
+                    <p className="font-semibold">{event.title}</p>
+                    <p className="mt-1 text-sm text-[var(--muted)]">{event.time} · {event.owner}</p>
                   </div>
-                  <span className={`rounded-full bg-gradient-to-r ${event.color} px-3 py-1 text-sm font-semibold text-white`}>{event.type}</span>
+                  <span className="rounded-full bg-[rgba(79,70,229,0.15)] px-2.5 py-1 text-xs font-semibold text-[#c7d2fe]">{event.type}</span>
                 </div>
+                <p className="mt-2 text-sm text-[var(--muted)]">{event.deal}</p>
               </div>
             ))}
           </div>
-        </div>
+        </PagePanel>
 
-        <div className="rounded-[28px] border border-slate-200/70 bg-white p-6 shadow-surface">
-          <p className="text-sm font-medium text-slate-500">Agenda</p>
-          <div className="mt-4 space-y-3 text-sm text-slate-600">
-            <p>Ensure every customer conversation is scheduled with follow-up tasks and deal context.</p>
-            <p className="font-semibold text-slate-950">Next event: Executive pipeline review at 10:00 AM</p>
+        <PagePanel>
+          <p className="text-sm text-[var(--muted)]">Week agenda</p>
+          <div className="mt-4 grid gap-2.5">
+            {weekDays.map((day) => (
+              <div key={day.date} className="rounded-xl border border-[var(--border)] bg-[var(--panel-soft)] p-3">
+                <p className="font-semibold">{day.day} · {day.date}</p>
+                <p className="mt-1 text-sm text-[var(--muted)]">{day.slots.join(" · ") || "Open"}</p>
+              </div>
+            ))}
           </div>
-        </div>
+        </PagePanel>
       </div>
-    </div>
+    </PageShell>
   );
 }

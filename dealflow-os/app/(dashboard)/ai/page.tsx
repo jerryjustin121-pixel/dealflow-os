@@ -1,44 +1,45 @@
+import { aiInsights, followUpDrafts } from "@/lib/mock-data";
+import { PagePanel, PageShell } from "@/components/ui/page-shell";
+
 export default function AIAssistantPage() {
   return (
-    <div className="space-y-6">
-      <div className="rounded-[28px] border border-slate-200/70 bg-white p-6 shadow-surface">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-500">AI Assistant</p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-950">Deal intelligence</h1>
-          </div>
-          <span className="rounded-full bg-[#EEF2FF] px-4 py-2 text-sm font-semibold text-[#2563EB]">Realtime insights</span>
-        </div>
+    <PageShell title="AI Assistant" subtitle="Deal intelligence, recommendations, and outreach drafts." badge="● Realtime insights">
+      <div className="grid gap-4 md:grid-cols-3">
+        {aiInsights.map((insight) => (
+          <PagePanel key={insight.id}>
+            <p className="font-semibold">{insight.title}</p>
+            <p className="mt-2 text-sm text-[var(--muted)]">{insight.description}</p>
+            <p className="mt-4 text-3xl font-bold text-[#c7d2fe]">{insight.count}</p>
+          </PagePanel>
+        ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
-        <div className="rounded-[28px] border border-slate-200/70 bg-white p-6 shadow-surface">
-          <p className="text-sm font-medium text-slate-500">Pipeline assistant</p>
-          <div className="mt-6 space-y-6">
-            <div className="rounded-[24px] border border-slate-200/70 bg-[#F8FAFF] p-6">
-              <p className="text-lg font-semibold text-slate-950">Top recommendation</p>
-              <p className="mt-3 text-sm text-slate-600">Focus on Nimbus Labs and Aurora Digital this week to close deals faster by providing product ROI proof points and accelerating contract review.</p>
-            </div>
-            <div className="rounded-[24px] border border-slate-200/70 bg-[#F9FAFB] p-6">
-              <p className="text-sm font-semibold text-slate-950">Suggested next steps</p>
-              <ul className="mt-4 space-y-3 text-sm text-slate-600">
-                <li>1. Schedule a pricing review with Eclipse Ventures.</li>
-                <li>2. Send a contract addendum request to Zenith Systems.</li>
-                <li>3. Confirm product requirements with Aurora Digital.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+      <div className="grid gap-4 xl:grid-cols-2">
+        <PagePanel>
+          <p className="text-sm text-[var(--muted)]">Top recommendation</p>
+          <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+            Focus on Nike Inc. and AppWorks this week. Both show high intent signals and are in active buying windows.
+          </p>
+          <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
+            <li>1. Schedule pricing review with FutureTech.</li>
+            <li>2. Send shortlist to AppWorks within budget.</li>
+            <li>3. Reactivate DataCorp with AI draft.</li>
+          </ul>
+        </PagePanel>
 
-        <div className="rounded-[28px] border border-slate-200/70 bg-white p-6 shadow-surface">
-          <p className="text-sm font-medium text-slate-500">AI summary</p>
-          <div className="mt-4 space-y-4 text-sm text-slate-600">
-            <p>Revenue momentum is strongest in deals where discovery calls are completed and contract terms are aligned.</p>
-            <p>Risk areas: negotiation stalls with Zenith Systems and delayed legal approval for Eclipse Ventures.</p>
-            <p className="font-semibold text-slate-950">Outcome: recommended focus on high-probability deals with rapid close dates.</p>
+        <PagePanel>
+          <p className="text-sm text-[var(--muted)]">Follow-up drafts</p>
+          <div className="mt-4 grid gap-3">
+            {followUpDrafts.map((draft) => (
+              <div key={draft.id} className="rounded-xl border border-[var(--border)] bg-[var(--panel-soft)] p-3">
+                <p className="font-semibold">{draft.recipient}</p>
+                <p className="mt-1 text-sm text-[#c7d2fe]">{draft.subject}</p>
+                <p className="mt-2 text-sm text-[var(--muted)]">{draft.body}</p>
+              </div>
+            ))}
           </div>
-        </div>
+        </PagePanel>
       </div>
-    </div>
+    </PageShell>
   );
 }
